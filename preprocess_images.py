@@ -18,7 +18,7 @@ def main(args):
 
     os.makedirs(features_dir, exist_ok=True)
 
-    inception = inception_v3_base(pretrained=True)  # using resnet50 as encoder
+    inception = resnet50(pretrained=True)  # using resnet50 as encoder
     inception.eval()
     inception.to(args.device)
 
@@ -37,8 +37,12 @@ def main(args):
 
     with torch.no_grad():
         for imgs, ids in tqdm.tqdm(loader):
-            print(inception(imgs.to(args.device)).shape)
-            outs = inception(imgs.to(args.device)).permute(0, 2, 3, 1).view(-1, 64, 2048)
+            my_x = imgs.to(args.device)
+            x_ch0 = torch.unsqueeze(my_x[:, 0], 1) * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
+            x_ch1 = torch.unsqueeze(my_x[:, 1], 1) * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
+            x_ch2 = torch.unsqueeze(my_x[:, 2], 1) * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
+            my_imgs = torch.cat((x_ch0, x_ch1, x_ch2), 1)
+            outs = inception(my_imgs).permute(0, 2, 3, 1).view(-1, 64, 2048)
             for out, id in zip(outs, ids):
                 out = out.cpu().numpy()
                 id = str(id.item())
