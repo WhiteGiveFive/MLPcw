@@ -193,6 +193,11 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def _forward_impl(self, x):
+        if self.transform_input:
+            x_ch0 = torch.unsqueeze(x[:, 0], 1) * (0.229 / 0.5) + (0.485 - 0.5) / 0.5
+            x_ch1 = torch.unsqueeze(x[:, 1], 1) * (0.224 / 0.5) + (0.456 - 0.5) / 0.5
+            x_ch2 = torch.unsqueeze(x[:, 2], 1) * (0.225 / 0.5) + (0.406 - 0.5) / 0.5
+            x = torch.cat((x_ch0, x_ch1, x_ch2), 1)
         # See note [TorchScript super()]
         x = self.conv1(x)
         x = self.bn1(x)
@@ -215,12 +220,31 @@ class ResNet(nn.Module):
 
 
 def _resnet(arch, block, layers, pretrained, progress, **kwargs):
-    model = ResNet(block, layers, **kwargs)
+
     if pretrained:
+        if 'transform_input' not in kwargs:
+            kwargs['transform_input'] = True
+        if 'aux_logits' in kwargs:
+            original_aux_logits = kwargs['aux_logits']
+            kwargs['aux_logits'] = True
+        else:
+            original_aux_logits = True
+        model = ResNet(block, layers, **kwargs)
         state_dict = load_state_dict_from_url(model_urls[arch],
                                               progress=progress)
         model.load_state_dict(state_dict)
-    return model
+        if not original_aux_logits:
+            model.aux_logits = False
+            del model.AuxLogits
+        return model
+    return ResNet(block, layers, **kwargs)
+
+    # model = ResNet(block, layers, **kwargs)
+    # if pretrained:
+    #     state_dict = load_state_dict_from_url(model_urls[arch],
+    #                                           progress=progress)
+    #     model.load_state_dict(state_dict)
+    # return model
 
 
 def resnet18(pretrained=False, progress=True, **kwargs):
