@@ -37,6 +37,7 @@ def main(args):
 
     with torch.no_grad():
         for imgs, ids in tqdm.tqdm(loader):
+            print(inception(imgs.to(args.device)).shape)
             outs = inception(imgs.to(args.device)).permute(0, 2, 3, 1).view(-1, 64, 2048)
             for out, id in zip(outs, ids):
                 out = out.cpu().numpy()
