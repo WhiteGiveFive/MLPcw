@@ -18,7 +18,7 @@ def main(args):
 
     os.makedirs(features_dir, exist_ok=True)
 
-    inception = resnet50(pretrained=True)  # using resnet50 as encoder
+    inception = inception_v3_base(pretrained=True)  # using resnet50 as encoder
     inception.eval()
     inception.to(args.device)
 
