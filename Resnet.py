@@ -222,20 +222,20 @@ class ResNet(nn.Module):
 def _resnet(arch, block, layers, pretrained, progress, **kwargs):
 
     if pretrained:
-        if 'transform_input' not in kwargs:
-            kwargs['transform_input'] = True
-        if 'aux_logits' in kwargs:
-            original_aux_logits = kwargs['aux_logits']
-            kwargs['aux_logits'] = True
-        else:
-            original_aux_logits = True
+        # if 'transform_input' not in kwargs:
+        #     kwargs['transform_input'] = True
+        # if 'aux_logits' in kwargs:
+        #     original_aux_logits = kwargs['aux_logits']
+        #     kwargs['aux_logits'] = True
+        # else:
+        #     original_aux_logits = True
         model = ResNet(block, layers, **kwargs)
         state_dict = load_state_dict_from_url(model_urls[arch],
                                               progress=progress)
         model.load_state_dict(state_dict)
-        if not original_aux_logits:
-            model.aux_logits = False
-            del model.AuxLogits
+        # if not original_aux_logits:
+        #     model.aux_logits = False
+        #     del model.AuxLogits
         return model
     return ResNet(block, layers, **kwargs)
 
