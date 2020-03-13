@@ -9,6 +9,7 @@ from torchvision import transforms
 from data import ImageDataset, read_split_image_ids_and_paths
 from model.inception import inception_v3_base
 from model.Resnet import resnet50
+from model import Encoder
 
 
 def main(args):
@@ -17,8 +18,8 @@ def main(args):
     features_dir = os.path.join(args.output_dir, f'{args.split}-features-grid')
 
     os.makedirs(features_dir, exist_ok=True)
-
-    inception = resnet50(pretrained=True)  # using resnet50 as encoder
+    inception = Encoder
+    # inception = Encoder(pretrained=True)  # using resnet50 as encoder
     inception.eval()
     inception.to(args.device)
 
